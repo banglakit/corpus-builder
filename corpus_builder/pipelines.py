@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from breadability.readable import Article
 
 
-class CorpusBuilderPipeline(object):
+class ContentExtractorPipeline(object):
     def process_item(self, item, spider):
-        return item
+    	# getting item as HTMLResponseBody
+    	document = Article(item.get(body, ""))
+    	item['body'] = "".join([text for text in document.readable_dom.itertext()])
+
+        return output_item
