@@ -1,0 +1,3 @@
+Scrapy==1.1.0
+goose-extractor==1.0.25
+
