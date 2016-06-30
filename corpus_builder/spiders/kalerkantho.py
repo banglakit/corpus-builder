@@ -17,7 +17,8 @@ class KalerkanthoSpider(CrawlSpider):
     	Rule(
     		LinkExtractor(
                         # http://www.kalerkantho.com/print-edition/first-page/2016/06/16/370418
-    			allow=('\/\d{4}\/\d{2}\/\d{2}\/\d+$')
+    			allow=('\/\d{4}\/\d{2}\/\d{2}\/\d+$'),
+                        restrict_css=('div.print_edition_left')
     		),
     		callback='parse_news'),
     )
@@ -26,13 +27,20 @@ class KalerkanthoSpider(CrawlSpider):
     	self.start_date = dateutil.parser.parse(start_date)
     	self.end_date = dateutil.parser.parse(end_date)
 
-        self.categories = ['first-page', 'last-page', 'sports', 'industry-business',
-        'deshe-deshe', 'priyo-desh', 'tech-everyday', 'education',
-        'editorial', 'sub-editorial', 'drishtikon', 'muktadhara', 'letters']
+        self.categories = []
 
     	super(KalerkanthoSpider, self).__init__(*a, **kw)
 
     def start_requests(self):
+        yield scrapy.Request('http://www.kalerkantho.com/print-edition/',
+                             callback = self.start_categorized_requests)
+
+    def start_categorized_requests(self, response):
+        self.categories = list(set(response.css('.nav.navbar-nav li a::attr("href")').re('/print\-edition\/([^\/]+)$')))
+
+        if not self.categories:
+            raise ValueError('No categories found')
+
     	date_processing = self.start_date
     	while date_processing <= self.end_date:
             for category in self.categories:
