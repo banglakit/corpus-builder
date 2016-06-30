@@ -24,11 +24,20 @@ class SamakalSpider(CrawlSpider):
     	self.start_date = dateutil.parser.parse(start_date)
     	self.end_date = dateutil.parser.parse(end_date)
 
-        self.categories = ['lead-news', '-education', 'bangladesh-other', 'capital', 'whole-country', 'barisal', 'port-city-news', 'chittagong', 'rajshahi', 'rangpur', 'khulna', 'dhaka', 'shelhet', 'mymensingh', 'politics', 'law-and-justice', 'health', 'crime', 'agriculture', 'parliament', 'atmosphere', 'politics', 'capital', 'whole-country', 'barisal', 'port-city-news', 'chittagong', 'rajshahi', 'rangpur', 'khulna', 'dhaka', 'shelhet', 'mymensingh', 'world', 'europe', 'uk', 'united-states-canada', 'world-other', 'africa', 'asia', 'india', 'middle-mast', 'pakistan-', 'world-australia', 'latin-america', 'science-&-tech', 'telecom', 'sports', 'bpl', 'football', 'cricket', 'tennis', 'sports-others', 'golf', 'ti20-biswacup-2016', 'economics', 'industry-trade', 'exchanges', 'bank-insurance', 'economics-other', 'budget', 'post-editorial', 'probas-jibon', 'projanmer-vabna', 'editorial', 'mukta-moncha', 'entertainment', 'bollywood', 'hollywood', 'entertainment-others', 'music', 'television', 'dhallywood', 'special-aoujon', 'entertainment', 'bollywood', 'hollywood', 'entertainment-others', 'music', 'television', 'dhallywood', 'lifestyle', 'nandon', 'chakri-niye', 'saturday-letters', 'shoili', 'khabar', 'education', 'projokti-protidin', 'sarabela']
+        self.categories = []
 
     	super(SamakalSpider, self).__init__(*a, **kw)
 
     def start_requests(self):
+        yield scrapy.Request('http://bangla.samakal.net/',
+                             callback = self.start_categorized_requests)
+
+    def start_categorized_requests(self, response):
+        self.categories = list(set(response.css('#topMenuItem a::attr("href")').re('/([^\/]+)/$')))
+
+        if not self.categories:
+            raise ValueError('No categories found')
+
     	date_processing = self.start_date
     	while date_processing <= self.end_date:
             for category in self.categories:
