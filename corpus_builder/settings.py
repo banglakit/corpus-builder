@@ -11,7 +11,7 @@
 
 BOT_NAME = 'corpus_builder'
 
-SPIDER_MODULES = ['corpus_builder.spiders']
+SPIDER_MODULES = ['corpus_builder.spiders.newspaper']
 NEWSPIDER_MODULE = 'corpus_builder.spiders'
 
 
