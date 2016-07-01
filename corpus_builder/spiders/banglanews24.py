@@ -5,6 +5,7 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 
 # crawl page 1 to 5 of each category and subcategory
@@ -15,9 +16,21 @@ from corpus_builder.items import TextEntry
 # scrapy crawl banglanews24 -a start_page=1 -a end_page=5 -a category=17 -a subcategory=5
 
 
-class Banglanews24Spider(CrawlSpider):
+class Banglanews24Spider(NewspaperSpider):
     name = "banglanews24"
     allowed_domains = ["banglanews24.com"]
+    base_url = 'http://www.banglanews24.com'
+    start_request_url = base_url
+    news_body = {
+        'css': '#main-article p::text'
+    }
+
+    allowed_configurations = [
+        ['start_page'],
+        ['start_page', 'end_page'],
+        ['category', 'start_page'],
+        ['category', 'start_page', 'end_page'],
+    ]
 
     rules = (
         Rule(
@@ -28,34 +41,7 @@ class Banglanews24Spider(CrawlSpider):
             callback='parse_news'),
     )
 
-    def __init__(self, start_page=None, end_page=None, category=None, subcategory=None, *a, **kw):
-
-        if not (start_page or end_page):
-            raise ValueError("start_page, end_page must be provided as arguments")
-
-        self.start_page = int(start_page)
-        if end_page:
-            self.end_page = int(end_page)
-        else:
-            self.end_page = start_page
-
-        self.category = None
-        self.subcategory = None
-
-        if category:
-            self.category = int(category)
-            if subcategory:
-                self.subcategory = int(subcategory)
-        elif subcategory:
-            raise ValueError("subcategory must be accompanied by category")
-
-        super(Banglanews24Spider, self).__init__(*a, **kw)
-
-    def start_requests(self):
-        yield scrapy.Request('http://www.banglanews24.com/',
-                             callback=self.start_categorized_requests)
-
-    def start_categorized_requests(self, response):
+    def request_index(self, response):
         categories = []
 
         if not self.category:
@@ -81,8 +67,3 @@ class Banglanews24Spider(CrawlSpider):
 
         for link in news_links:
             yield self.make_requests_from_url(link)
-
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = ("".join(response.css('#main-article p::text').extract())).strip()
-        return item

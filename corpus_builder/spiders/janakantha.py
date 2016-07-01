@@ -8,39 +8,27 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 
-class JanakanthaSpider(CrawlSpider):
+class JanakanthaSpider(NewspaperSpider):
     name = "janakantha"
     allowed_domains = ["dailyjanakantha.com"]
+    base_url = 'https://www.dailyjanakantha.com'
+    start_request_url = base_url
 
-    rules = (
-        Rule(
-            LinkExtractor(
-                # https://www.dailyjanakantha.com/details/article/194671/%E0%A6%AA%E0%A6%A5%E0%A7%87-%E0%A6%AA%E0%A6%A5%E0%A7%87-%E0%A6%9A%E0%A6%BE%E0%A6%81%E0%A6%A6%E0%A6%BE%E0%A6%AC%E0%A6%BE%E0%A6%9C%E0%A6%BF
-                allow=('/details/article/\d+/[^\/]+$'),
-                restrict_xpaths=('//div[@class="content"]')
-            ),
-            callback='parse_news'),
-    )
+    news_body = {
+        'css': 'p.artDetails *::text'
+    }
 
-    def __init__(self, start_date=None, end_date=None, category=None, *a, **kw):
-        self.start_date = dateutil.parser.parse(start_date)
+    allowed_configurations = [
+        ['start_date'],
+        ['start_date', 'end_date'],
+        ['category', 'start_date'],
+        ['category', 'start_date', 'end_date'],
+    ]
 
-        if end_date:
-            self.end_date = dateutil.parser.parse(end_date)
-        else:
-            self.end_date = self.start_date
-
-        self.category = category or None
-
-        super(JanakanthaSpider, self).__init__(*a, **kw)
-
-    def start_requests(self):
-        yield scrapy.Request('https://www.dailyjanakantha.com/',
-                             callback=self.start_categorized_requests)
-
-    def start_categorized_requests(self, response):
+    def request_index(self, response):
         menu_links = [urlparse.urlparse(x.strip()).path.split('/')[-1] \
                       for x in response.css('nav.menu a::attr("href")').extract()]
         categories = [x for x in menu_links if (not x == "" and not x == "#")]
@@ -55,14 +43,17 @@ class JanakanthaSpider(CrawlSpider):
         while date_processing <= self.end_date:
             for category in categories:
                 # https://www.dailyjanakantha.com/frontpage/date/2016-06-01
-                url = 'https://www.dailyjanakantha.com/{0}/date/{1}'.format(
+                url = self.base_url + '/{0}/date/{1}'.format(
                     category,
                     date_processing.strftime('%Y-%m-%d')
                 )
-                yield self.make_requests_from_url(url)
+                yield scrapy.Request(url, callback=self.extract_news_category)
             date_processing += datetime.timedelta(days=1)
 
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = "".join(part for part in response.css('p.artDetails *::text').extract())
-        return item
+    def extract_news_category(self, response):
+        news_links = list(set(response.xpath('//div[@class="content"]//a').extract()))
+
+        for link in news_links:
+            if not link[:4] == 'http':
+                link = self.base_url + link
+            yield scrapy.Request(link, callback=self.parse_news)

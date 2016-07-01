@@ -1,50 +1,58 @@
 # -*- coding: utf-8 -*-
 import datetime
-
+import urlparse
 import dateutil.parser
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 
-class JugantorSpider(CrawlSpider):
+class JugantorSpider(NewspaperSpider):
     name = "jugantor"
     allowed_domains = ["jugantor.com"]
+    base_url = 'http://www.jugantor.com'
+    start_request_url = base_url
+    news_body = {
+        'css': 'div#myText *::text'
+    }
+
+    allowed_configurations = [
+        ['start_date'],
+        ['start_date', 'end_date'],
+        ['category', 'start_date'],
+        ['category', 'start_date', 'end_date']
+    ]
 
     rules = (
         Rule(
             LinkExtractor(
-                # http://www.jugantor.com/first-page/2016/06/28/42001/%E0%A6%B8%E0%A6%AC%E0%A6%87-%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A7%87-%E0%A6%AA%E0%A7%81%E0%A6%B2%E0%A6%BF%E0%A6%B6
+                # http://www.jugantor.com/first-page/2016/06/28/42001/%E0%A6%B8%E0%A6...
                 allow=('\/\d{4}\/\d{2}\/\d{2}\/\d+/[^\/]+$'),
                 restrict_xpaths=('//div[@class="home_page_left"]')
             ),
             callback='parse_news'),
     )
 
-    def __init__(self, start_date=None, end_date=None, *a, **kw):
-        self.start_date = dateutil.parser.parse(start_date)
-        self.end_date = dateutil.parser.parse(end_date)
+    def request_index(self, response):
+        # online_categories = list(set(response.xpath('.//div[@id="menu_category"]/ul/li/a/@href').extract()))
+        categories = list(set(response.xpath('.//div[@id="menu_category"]/ul/li/ul/li/a/@href').extract()))
+        categories = [urlparse.urlparse(x).path.split('/')[-1] for x in categories]
 
-        self.categories = ['first-page', 'last-page', 'sports', 'news', 'ten-horizon',
-                           'industry-trade', 'anando-nagar', 'oneday-everyday', 'tutorial', 'window', 'sub-editorial',
-                           'bangla-face', 'city', 'it-world', 'out-of-home', 'editorial', 'country-news']
+        if self.category is not None:
+            if self.category in categories:
+                categories = [self.category]
+            else:
+                raise ValueError('invalid category slug. available slugs: %s' % ", ".join(categories))
 
-        super(JugantorSpider, self).__init__(*a, **kw)
-
-    def start_requests(self):
         date_processing = self.start_date
         while date_processing <= self.end_date:
-            for category in self.categories:
+            for category in categories:
                 # http://www.jugantor.com/news/2016-06-28
-                url = 'http://www.jugantor.com/{0}/{1}'.format(
+                url = self.base_url + '/{0}/{1}'.format(
                     category,
                     date_processing.strftime('%Y/%m/%d')
                 )
                 yield self.make_requests_from_url(url)
             date_processing += datetime.timedelta(days=1)
-
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = "".join(part for part in response.css('div#myText *::text').extract())
-        return item

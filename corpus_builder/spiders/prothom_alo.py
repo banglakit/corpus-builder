@@ -23,8 +23,11 @@ class ProthomAloSpider(NewspaperSpider):
         ['category', 'start_page', 'end_page']
     ]
 
-    def start_requests(self):
-        yield scrapy.Request(self.base_url, callback=self.request_index)
+    start_request_url = base_url
+
+    news_body = {
+        'xpath': '//article//text()'
+    }
 
     def request_index(self, response):
         if not self.archive:
@@ -37,7 +40,7 @@ class ProthomAloSpider(NewspaperSpider):
 
             if self.category:
                 if self.category in categories:
-                    pass
+                    categories = [self.category]
                 else:
                     raise ValueError('invalid category slug. available slugs: \'%s\'' % "', '".join(categories))
 
@@ -70,9 +73,3 @@ class ProthomAloSpider(NewspaperSpider):
             if not link[:4] == 'http':
                 link = self.base_url + link
             yield scrapy.Request(link, callback=self.parse_news)
-
-    def parse_news(self, response):
-        item = TextEntry()
-        article_text_children = response.xpath('//article//text()').extract()
-        item['body'] = "".join(child for child in article_text_children)
-        return item

@@ -10,11 +10,6 @@ from corpus_builder.items import TextEntry
 
 
 class NewspaperSpider(CrawlSpider):
-    name = ""
-    allowed_domains = []
-    base_url = ""
-    allowed_configurations = []
-
     def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None, archive=False,
         category=None, subcategory=None, *a, **kw):
 
@@ -29,7 +24,7 @@ class NewspaperSpider(CrawlSpider):
 
         # construct user's configuration
         for key, value in args.iteritems():
-            if value or value == 0 or value == "0":
+            if value:
                 user_configuration.append(key)
 
         # compare with allowed configurations
@@ -51,3 +46,19 @@ class NewspaperSpider(CrawlSpider):
         self.subcategory = subcategory
 
         super(NewspaperSpider, self).__init__(*a, **kw)
+
+    def start_requests(self):
+        yield scrapy.Request(self.start_request_url, callback=self.request_index)
+
+    def parse_news(self, response):
+        item = TextEntry()
+
+        if self.news_body.get('xpath'):
+            article_text_children = response.xpath(self.news_body.get('xpath')).extract()
+        elif self.news_body.get('css'):
+            article_text_children = response.css(self.news_body.get('css')).extract()
+        else:
+            raise NotImplementedError('text extraction selector underfined')
+
+        item['body'] = "".join(child for child in article_text_children)
+        return item
