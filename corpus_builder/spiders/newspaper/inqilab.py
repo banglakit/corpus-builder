@@ -5,11 +5,23 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 
-class InqilabSpider(CrawlSpider):
+class InqilabSpider(NewspaperSpider):
     name = "inqilab"
     allowed_domains = ["dailyinqilab.com"]
+    base_url = 'http://www.dailyinqilab.com'
+    start_request_url = base_url
+
+    news_body = {
+        'css': 'div.post-article p *::text'
+    }
+
+    allowed_configurations = [
+        ['archive', 'start_date'],
+        ['archive', 'start_date', 'end_date']
+    ]
 
     rules = (
         Rule(
@@ -21,25 +33,12 @@ class InqilabSpider(CrawlSpider):
             callback='parse_news'),
     )
 
-    def __init__(self, start_date=None, end_date=None, *a, **kw):
-        self.start_date = dateutil.parser.parse(start_date)
-        self.end_date = dateutil.parser.parse(end_date)
-
-        # no category,all links dumped in a page -_-
-
-        super(InqilabSpider, self).__init__(*a, **kw)
-
-    def start_requests(self):
+    def request_index(self, response):
         date_processing = self.start_date
         while date_processing <= self.end_date:
             # https://www.dailyinqilab.com/archive_index.php?option=1&publish_date=2016-06-01
-            url = 'http://www.dailyinqilab.com/archive_index.php?option=1&publish_date={0}'.format(
+            url = self.base_url + '/archive_index.php?option=1&publish_date={0}'.format(
                 date_processing.strftime('%Y-%m-%d')
             )
             yield self.make_requests_from_url(url)
             date_processing += datetime.timedelta(days=1)
-
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = "".join(part for part in response.css('div.post-article p *::text').extract())
-        return item
