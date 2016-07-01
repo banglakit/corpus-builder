@@ -1,2 +1,2 @@
-breadability==0.1.20
 Scrapy==1.1.0
+python-dateutil==2.5.3
