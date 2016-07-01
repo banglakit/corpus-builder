@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import scrapy
-import re
-import dateutil.parser
 import datetime
+import re
 import urlparse
-from scrapy.spiders import CrawlSpider, Rule
-from scrapy.linkextractors import LinkExtractor
+
+import dateutil.parser
+import scrapy
+
 from corpus_builder.items import TextEntry
+
 
 # different sets of categories are available on date-based and page-based crawling
 #
@@ -20,9 +21,9 @@ from corpus_builder.items import TextEntry
 class IttefaqSpider(scrapy.Spider):
     name = "ittefaq"
     allowed_domains = ["ittefaq.com.bd"]
-    
+
     def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None,
-        category=None, *a, **kw):
+                 category=None, *a, **kw):
 
         if (start_date or end_date) and (start_page or end_page):
             raise AttributeError("date-based and paginated crawling cannot be used together")
@@ -60,18 +61,18 @@ class IttefaqSpider(scrapy.Spider):
 
     def start_requests(self):
         yield scrapy.Request('http://www.ittefaq.com.bd/',
-            callback=self.start_categorized_requests)
+                             callback=self.start_categorized_requests)
 
     def start_categorized_requests(self, response):
         if self.start_page:
             all_categories = response.css('#menu a::attr("href")').extract()
             print_categories = response.css('#menu a::attr("href")').re('.*print-edition.*')
             categories = [urlparse.urlparse(x.strip()).path.split('/')[-1] \
-                for x in list(set(all_categories) - set(print_categories))]
+                          for x in list(set(all_categories) - set(print_categories))]
         elif self.start_date:
             categories = list(set(response.css('#menu a::attr("href")').re('.*/print-edition/.*')))
             categories = [re.match('.*\/(.*)\/\d{4}\/\d{2}\/\d{2}', x).groups()[0] for x in categories \
-                if (not x == "" and not x == "#")]
+                          if (not x == "" and not x == "#")]
 
         if self.category:
             if self.category in categories:
@@ -81,7 +82,7 @@ class IttefaqSpider(scrapy.Spider):
 
         if self.start_page:
             for category in categories:
-                for page_number in range(self.start_page, self.end_page+1):
+                for page_number in range(self.start_page, self.end_page + 1):
                     # http://www.ittefaq.com.bd/sports/10
                     url = 'http://www.ittefaq.com.bd/{0}/{1}'.format(
                         category,

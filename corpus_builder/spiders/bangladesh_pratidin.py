@@ -15,6 +15,7 @@ from corpus_builder.items import TextEntry
 # scrapy crawl bangladesh_pratidin -a start_date='2016-06-05' -a end_date='2016-06-05'
 # scrapy crawl bangladesh_pratidin -a start_date='2016-06-05' -a end_date='2016-06-05' -a category=first-page
 
+
 class BangladeshPratidinSpider(scrapy.Spider):
     name = "bangladesh_pratidin"
     allowed_domains = ["bd-pratidin.com"]
@@ -64,6 +65,7 @@ class BangladeshPratidinSpider(scrapy.Spider):
             callback=self.start_categorized_requests)
 
     def start_categorized_requests(self, response):
+        categories = []
         if self.start_page:
             categories = response.css('ul.nav a::attr(href)').re('^(?!http:).*$')
             unwanted_categories = response.css('ul.nav .dropdown-menu a::attr(href)').re('^(?!http:).*$')

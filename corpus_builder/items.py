@@ -4,5 +4,5 @@ import scrapy
 
 
 class TextEntry(scrapy.Item):
-	"""the corpus entry type"""
-	body = scrapy.Field()
+    """the corpus entry type"""
+    body = scrapy.Field()
