@@ -5,6 +5,7 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 # different sets of categories are available on date-based and page-based crawling
 #
@@ -16,55 +17,28 @@ from corpus_builder.items import TextEntry
 # scrapy crawl bangladesh_pratidin -a start_date='2016-06-05' -a end_date='2016-06-05' -a category=first-page
 
 
-class BangladeshPratidinSpider(scrapy.Spider):
+class BangladeshPratidinSpider(NewspaperSpider):
     name = "bangladesh_pratidin"
     allowed_domains = ["bd-pratidin.com"]
-    
-    def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None,
-        category=None, *a, **kw):
+    base_url = 'http://www.bd-pratidin.com'
+    start_request_url = base_url
 
-        if (start_date or end_date) and (start_page or end_page):
-            raise AttributeError("date-based and paginated crawling cannot be used together")
+    news_body = {
+        'css': '#newsDtl p::text'
+    }
 
-        if not ((start_date or end_date) or (start_page or end_page)):
-            raise ValueError("either dates or page numbers must be provided")
+    allowed_configurations = [
+        ['start_page', 'end_page'],
+        ['start_page'],
+        ['category', 'start_page'],
+        ['category', 'start_page', 'end_page'],
+        ['start_date', 'end_date'],
+        ['start_date'],
+        ['category', 'start_date'],
+        ['category', 'start_date', 'end_date']
+    ]  
 
-        if start_page is not None:
-            self.start_page = int(start_page)
-        else:
-            self.start_page = None
-
-        if end_page is not None:
-            self.end_page = int(end_page)
-        elif start_page is not None:
-            self.end_page = self.start_page
-        else:
-            self.end_page = None
-
-        if start_date is not None:
-            self.start_date = dateutil.parser.parse(start_date)
-        else:
-            self.start_date = None
-
-        if end_date is not None:
-            self.end_date = dateutil.parser.parse(end_date)
-        elif start_date is not None:
-            self.end_date = self.start_date
-        else:
-            self.end_date = None
-
-        if category is not None:
-            self.category = category
-        else:
-            self.category = None
-
-        super(BangladeshPratidinSpider, self).__init__(*a, **kw)
-
-    def start_requests(self):
-        yield scrapy.Request('http://www.bd-pratidin.com/',
-            callback=self.start_categorized_requests)
-
-    def start_categorized_requests(self, response):
+    def request_index(self, response):
         categories = []
         if self.start_page:
             categories = response.css('ul.nav a::attr(href)').re('^(?!http:).*$')
@@ -79,7 +53,7 @@ class BangladeshPratidinSpider(scrapy.Spider):
             if self.category in categories:
                 categories = [self.category]
             else:
-                raise ValueError('invalid category slug. available slugs: %s' % str(categories))
+                raise ValueError('invalid category slug. available slugs: %s' % ", ".join(categories))
 
         if self.start_page:
             for category in categories:
@@ -89,7 +63,7 @@ class BangladeshPratidinSpider(scrapy.Spider):
                         pgn = 0
                     else:
                         pgn = page_number*6
-                    url = 'http://www.bd-pratidin.com/{0}/{1}'.format(
+                    url = self.base_url + '/{0}/{1}'.format(
                         category,
                         pgn
                     )
@@ -100,7 +74,7 @@ class BangladeshPratidinSpider(scrapy.Spider):
             while date_processing <= self.end_date:
                 for category in categories:
                     # http://www.bd-pratidin.com/first-page/2016/06/01
-                    url = 'http://www.bd-pratidin.com/{0}/{1}'.format(
+                    url = self.base_url + '/{0}/{1}'.format(
                         category,
                         date_processing.strftime('%Y/%m/%d')
                     )
@@ -114,10 +88,6 @@ class BangladeshPratidinSpider(scrapy.Spider):
 
         for link in news_links:
             if link[:4] != 'http':
-                link = 'http://www.bd-pratidin.com/' + link
+                link = self.base_url + '/' + link
             yield scrapy.Request(link, callback=self.parse_news)
 
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = ("".join(response.css('#newsDtl p::text').extract())).strip()
-        return item

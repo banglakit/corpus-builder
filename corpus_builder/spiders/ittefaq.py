@@ -7,6 +7,7 @@ import dateutil.parser
 import scrapy
 
 from corpus_builder.items import TextEntry
+from corpus_builder.templates.spider import NewspaperSpider
 
 
 # different sets of categories are available on date-based and page-based crawling
@@ -18,52 +19,28 @@ from corpus_builder.items import TextEntry
 # scrapy crawl ittefaq -a start_date='2016-06-05' -a end_date='2016-06-05'
 # scrapy crawl ittefaq -a start_date='2016-06-05' -a end_date='2016-06-05' -a category=sports-news
 
-class IttefaqSpider(scrapy.Spider):
+class IttefaqSpider(NewspaperSpider):
     name = "ittefaq"
     allowed_domains = ["ittefaq.com.bd"]
+    base_url = 'http://www.ittefaq.com.bd'
+    start_request_url = base_url
 
-    def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None,
-                 category=None, *a, **kw):
+    news_body = {
+        'css': 'div.details *::text'
+    }
 
-        if (start_date or end_date) and (start_page or end_page):
-            raise AttributeError("date-based and paginated crawling cannot be used together")
+    allowed_configurations = [
+        ['start_page', 'end_page'],
+        ['start_page'],
+        ['category', 'start_page'],
+        ['category', 'start_page', 'end_page'],
+        ['start_date', 'end_date'],
+        ['start_date'],
+        ['category', 'start_date'],
+        ['category', 'start_date', 'end_date']
+    ]    
 
-        if not ((start_date or end_date) or (start_page or end_page)):
-            raise ValueError("either dates or page numbers must be provided")
-
-        if start_page is not None:
-            self.start_page = int(start_page)
-        else:
-            self.start_page = None
-
-        if end_page is not None:
-            self.end_page = int(end_page)
-        elif start_page is not None:
-            self.end_page = self.start_page
-        else:
-            self.end_page = None
-
-        if start_date is not None:
-            self.start_date = dateutil.parser.parse(start_date)
-        else:
-            self.start_date = None
-
-        if end_date is not None:
-            self.end_date = dateutil.parser.parse(end_date)
-        elif start_date is not None:
-            self.end_date = self.start_date
-        else:
-            self.end_date = None
-
-        self.category = category
-
-        super(IttefaqSpider, self).__init__(*a, **kw)
-
-    def start_requests(self):
-        yield scrapy.Request('http://www.ittefaq.com.bd/',
-                             callback=self.start_categorized_requests)
-
-    def start_categorized_requests(self, response):
+    def request_index(self, response):
         if self.start_page:
             all_categories = response.css('#menu a::attr("href")').extract()
             print_categories = response.css('#menu a::attr("href")').re('.*print-edition.*')
@@ -84,7 +61,7 @@ class IttefaqSpider(scrapy.Spider):
             for category in categories:
                 for page_number in range(self.start_page, self.end_page + 1):
                     # http://www.ittefaq.com.bd/sports/10
-                    url = 'http://www.ittefaq.com.bd/{0}/{1}'.format(
+                    url = self.base_url + '/{0}/{1}'.format(
                         category,
                         page_number
                     )
@@ -95,7 +72,7 @@ class IttefaqSpider(scrapy.Spider):
             while date_processing <= self.end_date:
                 for category in categories:
                     # http://www.ittefaq.com.bd/print-edition/sports-news/2016/06/30
-                    url = 'http://www.ittefaq.com.bd/print-edition/{0}/{1}'.format(
+                    url = self.base_url + '/print-edition/{0}/{1}'.format(
                         category,
                         date_processing.strftime('%Y/%m/%d')
                     )
@@ -109,8 +86,3 @@ class IttefaqSpider(scrapy.Spider):
 
         for link in news_links:
             yield scrapy.Request(link, callback=self.parse_news)
-
-    def parse_news(self, response):
-        item = TextEntry()
-        item['body'] = "".join(response.css('div.details span::text').extract())
-        return item
