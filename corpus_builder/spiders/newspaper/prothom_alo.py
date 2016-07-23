@@ -7,10 +7,10 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class ProthomAloSpider(NewspaperSpider):
+class ProthomAloSpider(CommonSpider):
     name = "prothom_alo"
     allowed_domains = ["prothom-alo.com"]
     base_url = "http://www.prothom-alo.com"
@@ -25,7 +25,7 @@ class ProthomAloSpider(NewspaperSpider):
 
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'xpath': '//article//text()'
     }
 

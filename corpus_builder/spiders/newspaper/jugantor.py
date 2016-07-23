@@ -6,15 +6,15 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class JugantorSpider(NewspaperSpider):
+class JugantorSpider(CommonSpider):
     name = "jugantor"
     allowed_domains = ["jugantor.com"]
     base_url = 'http://www.jugantor.com'
     start_request_url = base_url
-    news_body = {
+    content_body = {
         'css': 'div#myText *::text'
     }
 

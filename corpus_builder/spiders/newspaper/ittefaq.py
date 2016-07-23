@@ -7,7 +7,7 @@ import dateutil.parser
 import scrapy
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
 # different sets of categories are available on date-based and page-based crawling
@@ -19,13 +19,13 @@ from corpus_builder.templates.spider import NewspaperSpider
 # scrapy crawl ittefaq -a start_date='2016-06-05' -a end_date='2016-06-05'
 # scrapy crawl ittefaq -a start_date='2016-06-05' -a end_date='2016-06-05' -a category=sports-news
 
-class IttefaqSpider(NewspaperSpider):
+class IttefaqSpider(CommonSpider):
     name = "ittefaq"
     allowed_domains = ["ittefaq.com.bd"]
     base_url = 'http://www.ittefaq.com.bd'
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'css': 'div.details *::text'
     }
 

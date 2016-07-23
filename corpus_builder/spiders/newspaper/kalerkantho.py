@@ -6,18 +6,18 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
 # Note: The spider only works for the "Printed Edition", for now.
 
 
-class KalerkanthoSpider(NewspaperSpider):
+class KalerkanthoSpider(CommonSpider):
     name = "kalerkantho"
     allowed_domains = ["kalerkantho.com"]
     base_url = 'http://www.kalerkantho.com'
     start_request_url = base_url
-    news_body = {
+    content_body = {
         'css': 'div.details p *::text'
     }
 

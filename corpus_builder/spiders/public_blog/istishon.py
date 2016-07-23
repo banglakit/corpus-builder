@@ -5,16 +5,16 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class IstishonSpider(NewspaperSpider):
+class IstishonSpider(CommonSpider):
     name = 'istishon'
     allowed_domains = ['www.istishon.com']
     base_url = 'http://www.istishon.com'
     start_request_url = base_url + '/blog'
 
-    news_body = {
+    content_body = {
         'css': 'div.content p::text'
     }
 

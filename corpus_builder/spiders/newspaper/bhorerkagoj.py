@@ -4,16 +4,16 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class BhorerkagojSpider(NewspaperSpider):
+class BhorerkagojSpider(CommonSpider):
     name = 'bhorerkagoj'
     allowed_domains = ['bhorerkagoj.net']
     base_url = 'http://www.bhorerkagoj.net' + '/online'
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'css': 'div.entry p::text'
     }
 

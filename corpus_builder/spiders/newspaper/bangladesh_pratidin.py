@@ -5,7 +5,7 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 # different sets of categories are available on date-based and page-based crawling
 #
@@ -17,13 +17,13 @@ from corpus_builder.templates.spider import NewspaperSpider
 # scrapy crawl bangladesh_pratidin -a start_date='2016-06-05' -a end_date='2016-06-05' -a category=first-page
 
 
-class BangladeshPratidinSpider(NewspaperSpider):
+class BangladeshPratidinSpider(CommonSpider):
     name = "bangladesh_pratidin"
     allowed_domains = ["bd-pratidin.com"]
     base_url = 'http://www.bd-pratidin.com'
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'css': '#newsDtl p::text'
     }
 

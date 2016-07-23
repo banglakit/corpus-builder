@@ -7,14 +7,14 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class SamakalSpider(NewspaperSpider):
+class SamakalSpider(CommonSpider):
     name = "samakal"
     allowed_domains = ["bangla.samakal.net"]
     base_url = 'http://bangla.samakal.net'
-    news_body = {
+    content_body = {
         'css' : 'div#newsDtl *::text'
     }
     start_request_url = base_url

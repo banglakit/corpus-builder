@@ -5,16 +5,16 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class InqilabSpider(NewspaperSpider):
+class InqilabSpider(CommonSpider):
     name = "inqilab"
     allowed_domains = ["dailyinqilab.com"]
     base_url = 'http://www.dailyinqilab.com'
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'css': 'div.post-article p *::text'
     }
 

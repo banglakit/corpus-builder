@@ -8,16 +8,16 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
-class JanakanthaSpider(NewspaperSpider):
+class JanakanthaSpider(CommonSpider):
     name = "janakantha"
     allowed_domains = ["dailyjanakantha.com"]
     base_url = 'https://www.dailyjanakantha.com'
     start_request_url = base_url
 
-    news_body = {
+    content_body = {
         'css': 'p.artDetails *::text'
     }
 

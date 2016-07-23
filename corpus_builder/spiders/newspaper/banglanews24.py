@@ -5,7 +5,7 @@ import datetime
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.items import TextEntry
-from corpus_builder.templates.spider import NewspaperSpider
+from corpus_builder.templates.spider import CommonSpider
 
 
 # crawl page 1 to 5 of each category and subcategory
@@ -16,12 +16,12 @@ from corpus_builder.templates.spider import NewspaperSpider
 # scrapy crawl banglanews24 -a start_page=1 -a end_page=5 -a category=17 -a subcategory=5
 
 
-class Banglanews24Spider(NewspaperSpider):
+class Banglanews24Spider(CommonSpider):
     name = "banglanews24"
     allowed_domains = ["banglanews24.com"]
     base_url = 'http://www.banglanews24.com'
     start_request_url = base_url
-    news_body = {
+    content_body = {
         'css': '#main-article p::text'
     }
 

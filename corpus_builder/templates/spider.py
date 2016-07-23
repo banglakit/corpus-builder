@@ -9,7 +9,7 @@ from scrapy.spiders import CrawlSpider, Rule
 from corpus_builder.items import TextEntry
 
 
-class NewspaperSpider(CrawlSpider):
+class CommonSpider(CrawlSpider):
     def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None, archive=False,
         category=None, subcategory=None, *a, **kw):
 
@@ -45,7 +45,7 @@ class NewspaperSpider(CrawlSpider):
         self.category = category
         self.subcategory = subcategory
 
-        super(NewspaperSpider, self).__init__(*a, **kw)
+        super(CommonSpider, self).__init__(*a, **kw)
 
     def start_requests(self):
         yield scrapy.Request(self.start_request_url, callback=self.request_index)
@@ -53,10 +53,10 @@ class NewspaperSpider(CrawlSpider):
     def parse_news(self, response):
         item = TextEntry()
 
-        if self.news_body.get('xpath'):
-            article_text_children = response.xpath(self.news_body.get('xpath')).extract()
-        elif self.news_body.get('css'):
-            article_text_children = response.css(self.news_body.get('css')).extract()
+        if self.content_body.get('xpath'):
+            article_text_children = response.xpath(self.content_body.get('xpath')).extract()
+        elif self.content_body.get('css'):
+            article_text_children = response.css(self.content_body.get('css')).extract()
         else:
             raise NotImplementedError('text extraction selector underfined')
 
