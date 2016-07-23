@@ -22,7 +22,7 @@ class IstishonSpider(CommonSpider):
         Rule(LinkExtractor(
             restrict_css='div.content h2'
         ),
-        callback='parse_news'),
+        callback='parse_content'),
     )
 
     allowed_configurations = [

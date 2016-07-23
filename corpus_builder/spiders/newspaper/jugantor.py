@@ -32,7 +32,7 @@ class JugantorSpider(CommonSpider):
                 allow=('\/\d{4}\/\d{2}\/\d{2}\/\d+/[^\/]+$'),
                 restrict_xpaths=('//div[@class="home_page_left"]')
             ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     def request_index(self, response):

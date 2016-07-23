@@ -28,7 +28,7 @@ class AmaderSomoySpider(CommonSpider):
         Rule(LinkExtractor(
             allow='(?<=com)\/\w.*\/\d.*\/.*'
         ),
-        callback='parse_news'),
+        callback='parse_content'),
     )
 
     allowed_configurations = [

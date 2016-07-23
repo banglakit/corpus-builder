@@ -30,7 +30,7 @@ class InqilabSpider(CommonSpider):
                 allow=('/details/\d+/[^\/]+$'),
                 restrict_xpaths=('//div[@class="mag-cat-post"]')
             ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     def request_index(self, response):

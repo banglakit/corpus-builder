@@ -64,7 +64,7 @@ class ProthomAloSpider(CommonSpider):
         for link in news_links:
             if not link[:4] == 'http':
                 link = self.base_url + link
-            yield scrapy.Request(link, callback=self.parse_news)
+            yield scrapy.Request(link, callback=self.parse_content)
 
     def extract_news_archive(self, response):
         news_links = list(set(response.css('.all_titles_widget a::attr("href")').extract()))
@@ -72,4 +72,4 @@ class ProthomAloSpider(CommonSpider):
         for link in news_links:
             if not link[:4] == 'http':
                 link = self.base_url + link
-            yield scrapy.Request(link, callback=self.parse_news)
+            yield scrapy.Request(link, callback=self.parse_content)

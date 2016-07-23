@@ -38,7 +38,7 @@ class Banglanews24Spider(CommonSpider):
                 # http://www.banglanews24.com/information-technology/news/497935/%E0%...
                 allow=('\/[a-z-]*\/news\/\d+\/.*$')
             ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     def request_index(self, response):

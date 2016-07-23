@@ -85,4 +85,4 @@ class IttefaqSpider(CommonSpider):
         news_links = list(set(response.css('div.headline a::attr("href")').extract()))
 
         for link in news_links:
-            yield scrapy.Request(link, callback=self.parse_news)
+            yield scrapy.Request(link, callback=self.parse_content)

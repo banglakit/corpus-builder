@@ -27,7 +27,7 @@ class KalerkanthoSpider(CommonSpider):
                 # http://www.kalerkantho.com/print-edition/first-page/2016/06/16/370418
                 allow=('\/\d{4}\/\d{2}\/\d{2}\/\d+$')
             ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     allowed_configurations = [

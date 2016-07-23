@@ -28,7 +28,7 @@ class BhorerkagojSpider(CommonSpider):
         Rule(LinkExtractor(
             allow='\/\d{4}\/\d{2}\/\d{2}\/\d+\.php$'
         ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     def request_index(self, response):

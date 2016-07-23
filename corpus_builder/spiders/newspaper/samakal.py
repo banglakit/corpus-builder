@@ -33,7 +33,7 @@ class SamakalSpider(CommonSpider):
                 allow=('/\d{4}/\d{2}/\d{2}/\d+$'),
                 restrict_xpaths=('//div[@class="main-body"]')
             ),
-            callback='parse_news'),
+            callback='parse_content'),
     )
 
     def request_index(self, response):
@@ -51,7 +51,7 @@ class SamakalSpider(CommonSpider):
                 # redifining the rule again according to the specific date url
                 SamakalSpider.rules = (Rule(LinkExtractor(allow=('/' + date_processing.strftime('%Y/%m/%d') + '/\d+$',),
                                                           restrict_xpaths=('//div[@class="main-body"]')),
-                                            callback="parse_news", follow=True),)
+                                            callback="parse_content", follow=True),)
                 super(SamakalSpider, self)._compile_rules()
                 # http://bangla.samakal.net/-education/2016/06/01 
                 url = 'http://bangla.samakal.net/{0}/{1}'.format(

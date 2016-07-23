@@ -50,7 +50,7 @@ class CommonSpider(CrawlSpider):
     def start_requests(self):
         yield scrapy.Request(self.start_request_url, callback=self.request_index)
 
-    def parse_news(self, response):
+    def parse_content(self, response):
         item = TextEntry()
 
         if self.content_body.get('xpath'):
