@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import scrapy
-import dateutil.parser
 import datetime
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from corpus_builder.templates.spider import NewspaperSpider
 
@@ -42,7 +40,6 @@ class BanglatribuneSpider(NewspaperSpider):
     def request_index(self, response):
         if self.start_date:
             date_processing = self.start_date
-            page = 1
             while date_processing <= self.end_date:
                 url = self.base_url + '/{0}?page=1'.format(date_processing.strftime('%Y-%m-%d'))
                 yield self.make_requests_from_url(url)
@@ -54,6 +51,4 @@ class BanglatribuneSpider(NewspaperSpider):
         for link in news_links:
             if link[:4] != 'http':
                 link = 'http://www.banglatribune.com/' + link
-                # self.logger.info("URL: %s" % link)
-            # yield scrapy.Request(link, callback=self.parse_news)
             yield self.make_requests_from_url(link)
