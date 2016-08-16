@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-import dateutil.parser
-import scrapy
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Rule
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 
@@ -15,7 +12,7 @@ class SamakalSpider(CommonSpider):
     allowed_domains = ["bangla.samakal.net"]
     base_url = 'http://bangla.samakal.net'
     content_body = {
-        'css' : 'div#newsDtl *::text'
+        'css': 'div#newsDtl *::text'
     }
     start_request_url = base_url
 

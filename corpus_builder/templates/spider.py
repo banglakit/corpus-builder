@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-import scrapy
-import datetime
-
 import dateutil.parser
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+import scrapy
+from scrapy.spiders import CrawlSpider
 
 from corpus_builder.items import TextEntry
 
 
 class CommonSpider(CrawlSpider):
     def __init__(self, start_date=None, end_date=None, start_page=None, end_page=None, archive=False,
-        category=None, subcategory=None, *a, **kw):
+                 category=None, subcategory=None, *a, **kw):
 
         # get local variables, delete some
         args = locals()

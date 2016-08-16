@@ -51,4 +51,3 @@ class BhorerkagojSpider(CommonSpider):
 
         for link in news_links:
             yield self.make_requests_from_url(link)
-

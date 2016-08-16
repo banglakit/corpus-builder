@@ -3,10 +3,8 @@ import datetime
 import re
 import urlparse
 
-import dateutil.parser
 import scrapy
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 
@@ -38,7 +36,7 @@ class IttefaqSpider(CommonSpider):
         ['start_date'],
         ['category', 'start_date'],
         ['category', 'start_date', 'end_date']
-    ]    
+    ]
 
     def request_index(self, response):
         if self.start_page:

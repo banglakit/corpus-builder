@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import scrapy
-import dateutil.parser
 import datetime
-from scrapy.spiders import CrawlSpider, Rule
+
 from scrapy.linkextractors import LinkExtractor
-from corpus_builder.items import TextEntry
+from scrapy.spiders import Rule
+
 from corpus_builder.templates.spider import CommonSpider
 
 

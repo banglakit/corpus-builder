@@ -2,12 +2,8 @@
 import datetime
 import urlparse
 
-import dateutil.parser
 import scrapy
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 

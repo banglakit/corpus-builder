@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import urlparse
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Rule
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 
@@ -22,7 +20,7 @@ class IstishonSpider(CommonSpider):
         Rule(LinkExtractor(
             restrict_css='div.content h2'
         ),
-        callback='parse_content'),
+            callback='parse_content'),
     )
 
     allowed_configurations = [

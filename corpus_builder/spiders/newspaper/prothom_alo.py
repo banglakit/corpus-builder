@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-import scrapy
 import datetime
 
-import dateutil.parser
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+import scrapy
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 
@@ -55,7 +51,7 @@ class ProthomAloSpider(CommonSpider):
             while date_processing <= self.end_date:
                 url = self.base_url + '/archive/{0}'.format(date_processing.strftime('%Y-%m-%d'))
                 yield scrapy.Request(url, callback=self.extract_news_archive)
-        
+
                 date_processing += datetime.timedelta(days=1)
 
     def extract_news_category(self, response):

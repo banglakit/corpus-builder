@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 30 20:56:43 2016
 
-@author: hasnayeen
-"""
+import urlparse
 
 import scrapy
-import urlparse
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Rule
 
-from corpus_builder.items import TextEntry
 from corpus_builder.templates.spider import CommonSpider
 
 
@@ -28,7 +23,7 @@ class AmaderSomoySpider(CommonSpider):
         Rule(LinkExtractor(
             allow='(?<=com)\/\w.*\/\d.*\/.*'
         ),
-        callback='parse_content'),
+            callback='parse_content'),
     )
 
     allowed_configurations = [
@@ -47,7 +42,7 @@ class AmaderSomoySpider(CommonSpider):
                 categories = [self.categories]
             else:
                 raise ValueError('invalid category slug. available slugs: %s' % ", ".join(categories))
-            
+
         for category in categories:
             for page in range(int(self.start_page), int(self.end_page) + 1):
                 yield scrapy.Request(self.base_url + '/all-news/' + category + '/?pg={0}'.format(str(page)),
