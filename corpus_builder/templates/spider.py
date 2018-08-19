@@ -15,7 +15,7 @@ class CommonSpider(CrawlSpider):
         del args['a']
         del args['kw']
         del args['self']
-        del args['__class__']
+#        del args['__class__']
 
         user_configuration = []
         valid_config = False

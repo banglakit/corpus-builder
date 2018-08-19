@@ -8,8 +8,8 @@ from corpus_builder.templates.spider import CommonSpider
 
 class ProthomAloSpider(CommonSpider):
     name = "prothom_alo"
-    allowed_domains = ["prothom-alo.com"]
-    base_url = "http://www.prothom-alo.com"
+    allowed_domains = ["prothomalo.com"]
+    base_url = "https://www.prothomalo.com"
     allowed_configurations = [
         ['start_page', 'end_page'],
         ['start_page'],
@@ -22,7 +22,7 @@ class ProthomAloSpider(CommonSpider):
     start_request_url = base_url
 
     content_body = {
-        'xpath': '//article//text()'
+        'xpath': '//article//p//text()'
     }
 
     def request_index(self, response):
@@ -63,7 +63,13 @@ class ProthomAloSpider(CommonSpider):
             yield scrapy.Request(link, callback=self.parse_content)
 
     def extract_news_archive(self, response):
-        news_links = list(set(response.css('.all_titles_widget a::attr("href")').extract()))
+
+        next_page_links = set(response.css('div.pagination a.next_page::attr("href")').extract())
+
+        for link in next_page_links:
+            yield scrapy.Request(link, callback=self.extract_news_archive)
+
+        news_links = set(response.css('.contents_listing a::attr("href")').extract())
 
         for link in news_links:
             if not link[:4] == 'http':
