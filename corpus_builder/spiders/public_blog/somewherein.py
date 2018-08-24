@@ -30,4 +30,4 @@ class SomewhereInSpider(CommonSpider):
 
     def request_index(self, response):
         for page in range(self.start_page - 1, self.end_page ):
-            yield scrapy.Request(self.base_url + 'page/{page}'.format(page=page * 15))
+            yield scrapy.Request(self.base_url + 'live/{page}'.format(page=page * 15))
